@@ -7,7 +7,6 @@ import matplotlib.pyplot as plt
 import time
 from tensorflow.keras.models import load_model
 
-
 class Time_Predict:
     def __init__(self,data_name,seq_len,label_len,model_save):
         self.data_name=data_name
