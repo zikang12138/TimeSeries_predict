@@ -128,6 +128,6 @@ class Time_Predict:
         print(mse)
 
 
-tm=Time_Predict ('data\\4class.csv', 100, 1) 
+tm=Time_Predict ('data/4class.csv', 100, 1) 
 [x_train,y_train,x_test,y_test]=tm.load_data()
-tm.cnn(x_train, y_train, 'model\\cnn.h5', 30)
+tm.cnn(x_train, y_train, 'model/cnn_300.h5', 300)
