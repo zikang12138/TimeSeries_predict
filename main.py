@@ -2,10 +2,12 @@
 import numpy as np
 from tensorflow.keras.layers import Dense, Activation, Dropout
 from tensorflow.keras.models import Sequential
+from tensorflow.keras.models import Model
 from tensorflow.keras.layers import LSTM,SimpleRNN,Conv1D,MaxPool1D,Flatten
 import matplotlib.pyplot as plt
 import time
 from tensorflow.keras.models import load_model
+import random
 
 class Time_Predict:
     def __init__(self,data_name,seq_len,label_len):
@@ -83,7 +85,7 @@ class Time_Predict:
         model.add(MaxPool1D(pool_size=2))
         model.add(Flatten())
         model.add(Dense(50, activation='tanh'))
-        model.add(Dense(1))
+        model.add(Dense(10))
         model.compile(loss='mse', optimizer='adam')
         start = time.time()
         model.fit(x_train, y_train, batch_size=64, epochs=ep, validation_split=0.05)
@@ -102,9 +104,9 @@ class Time_Predict:
         plt.savefig(plot_save)
 
     def predict_point_by_point(self,model_save, x_test):
-        model=load_model(model_save)
+        model=load_model(model_save,compile=False)
         predicted = model.predict(x_test)  # 输入测试集的全部数据进行全部预测，（412，1）
-        predicted = np.reshape(predicted, (predicted.size,))
+        #predicted = np.reshape(predicted, (predicted.size,))
         return predicted
 
     def plot_results(self,predicted_data, true_data, save_name):
@@ -118,16 +120,21 @@ class Time_Predict:
     def MSE(self,y_true, y_predict):
         n = len(y_true)
         m = y_true - y_predict
-        mse = sum(np.square(y_true - y_predict)) / n
+        mse=np.std(m)
         return mse
 
     def evalute(self,predicted_data,y_test,plot_result_name,model_name):
-        self.plot_results(predicted_data, y_test, plot_result_name)
+        n=len(y_test)
+        i=random.randint(0, n-1)
+        self.plot_results(predicted_data[i], y_test[i], plot_result_name)
         mse=self.MSE(y_test,predicted_data)
         print(model_name,end=" ")
         print(mse)
 
 
-tm=Time_Predict ('data/4class.csv', 100, 1) 
+tm=Time_Predict ('data/4class.csv', 100, 10) 
 [x_train,y_train,x_test,y_test]=tm.load_data()
-tm.cnn(x_train, y_train, 'model/cnn_300.h5', 300)
+tm.cnn(x_train, y_train, 'model/4class_cnn_300_10.h5', ep=300)
+# p=tm.predict_point_by_point('model/4class_cnn_300_10.h5', x_test)
+
+# tm.evalute(p, y_test, 'picture/cnn_300_10.png', 'cnn')
