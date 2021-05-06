@@ -1,3 +1,4 @@
+#外部依赖
 import numpy as np
 from tensorflow.keras.layers import Dense, Activation, Dropout
 from tensorflow.keras.models import Sequential
