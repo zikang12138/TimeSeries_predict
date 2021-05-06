@@ -114,6 +114,7 @@ class Time_Predict:
         ax = fig.add_subplot(111)
         ax.plot(true_data, label='True Data')
         plt.plot(predicted_data, label='Prediction')
+        plt.title(save_name)
         plt.legend()
         plt.savefig(save_name)
 
