@@ -134,7 +134,7 @@ class Time_Predict:
 
 tm=Time_Predict ('data/4class.csv',seq_len=100,label_len=10) 
 [x_train,y_train,x_test,y_test]=tm.load_data()
-tm.cnn(x_train, y_train, 'model/4class_cnn_300_10.h5', ep=300)
-# p=tm.predict_point_by_point('model/4class_cnn_300_10.h5', x_test)
+#tm.cnn(x_train, y_train, 'model/4class_cnn_300_10.h5', ep=300)
+p=tm.predict_point_by_point('model/4class_cnn_300_10.h5', x_test)
 
-# tm.evalute(p, y_test, 'picture/cnn_300_10.png', 'cnn')
+tm.evalute(p, y_test, 'picture/cnn_300_10.png', 'cnn')
