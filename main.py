@@ -8,7 +8,7 @@ import time
 from tensorflow.keras.models import load_model
 
 class Time_Predict:
-    def __init__(self,data_name,seq_len,label_len,model_save):
+    def __init__(self,data_name,seq_len,label_len):
         self.data_name=data_name
         self.seq_len=seq_len
         self.label_len=label_len
@@ -126,3 +126,8 @@ class Time_Predict:
         mse=self.MSE(y_test,predicted_data)
         print(model_name,end=" ")
         print(mse)
+
+
+tm=Time_Predict ('data\\4class.csv', 100, 1) 
+[x_train,y_train,x_test,y_test]=tm.load_data()
+tm.cnn(x_train, y_train, 'model\\cnn.h5', 30)
