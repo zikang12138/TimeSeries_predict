@@ -121,7 +121,7 @@ class Time_Predict:
     def MSE(self,y_true, y_predict):
         n = len(y_true)
         m = y_true - y_predict
-        mse=np.std(m)
+        mse=np.var(m)
         return mse
 
     def evalute(self,predicted_data,y_test,plot_result_name,model_name):
