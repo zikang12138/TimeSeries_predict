@@ -150,23 +150,23 @@ class Time_Predict:
         plt.legend()
         plt.savefig(save_name)
 
-    def MSE(self,y_true, y_predict):
+    def AVE(self,y_true, y_predict):
         n = len(y_true)
         m = y_true - y_predict
-        mse=np.var(m)
+        mse=np.average(abs(m))
         return mse
 
     def evalute(self,predicted_data,y_test,plot_result_name,picture_name,model_name):
         n=len(y_test)
         i=random.randint(0, n-1)
         self.plot_results(predicted_data[i], y_test[i], plot_result_name,picture_name)
-        mse=self.MSE(y_test,predicted_data)
+        ave=self.AVE(y_test,predicted_data)
         print(model_name,end=" ")
-        print(mse)
+        print(ave)
 
 
 tm=Time_Predict ('data/4class.csv',seq_len=100,label_len=10,teach_forecast=True) 
 [x_train,y_train,x_test,y_test]=tm.load_data()
-# tm.lstm(x_train, y_train, 'model/4class_lstm2_300_10.h5', ep=300)
-p=tm.predict_point_by_point('model/4class_lstm2_300_10.h5', x_test)
-tm.evalute(predicted_data=p, y_test=y_test, plot_result_name='picture/4class_lstm2_300_10.png', picture_name='4class2_lstm2_300_10',model_name='lstm2')
+# tm.rnn(x_train, y_train, 'model/4class_rnn2_300_10.h5', ep=300)
+p=tm.predict_point_by_point('model/4class_rnn2_300_10.h5', x_test)
+tm.evalute(predicted_data=p, y_test=y_test, plot_result_name='picture/4class_rnn2_300_10.png', picture_name='4class2_rnn2_300_10',model_name='rnn2')
