@@ -158,15 +158,19 @@ class Time_Predict:
 
     def evalute(self,predicted_data,y_test,plot_result_name,picture_name,model_name):
         n=len(y_test)
-        i=random.randint(0, n-1)
+        m=abs(y_test-predicted_data)
+        k=[]
+        for j in range(n):
+            k.append(sum(m[j]))
+        i=k.index(min(k))
         self.plot_results(predicted_data[i], y_test[i], plot_result_name,picture_name)
         ave=self.AVE(y_test,predicted_data)
         print(model_name,end=" ")
         print(ave)
 
 
-tm=Time_Predict ('data/4class.csv',seq_len=100,label_len=10,teach_forecast=True) 
+tm=Time_Predict ('data/5class.csv',seq_len=100,label_len=10,teach_forecast=False) 
 [x_train,y_train,x_test,y_test]=tm.load_data()
 # tm.rnn(x_train, y_train, 'model/4class_rnn2_300_10.h5', ep=300)
-p=tm.predict_point_by_point('model/4class_rnn2_300_10.h5', x_test)
-tm.evalute(predicted_data=p, y_test=y_test, plot_result_name='picture/4class_rnn2_300_10.png', picture_name='4class2_rnn2_300_10',model_name='rnn2')
+p=tm.predict_point_by_point('model/5class_rnn_300_10.h5', x_test)
+tm.evalute(predicted_data=p, y_test=y_test, plot_result_name='picture/5class_rnn_300_100to10.png', picture_name='5class_rnn_300_100to10',model_name='lstm')
