@@ -222,10 +222,11 @@ class multi_Time_Predict(Time_Predict):
 
 mtm=multi_Time_Predict('test.csv',seq_len=60,label_len=20,n_features=2)
 [x_train,y_train,x_test,y_test]=mtm.load_data()
-# mtm.LSTM(x_train,y_train,model_save='test.h5',ep=30)
-p=mtm.predict_result('test.h5',x_test)
+# mtm.LSTM(x_train,y_train,model_save='model/mutil_300_LSTM_500_60to20.h5',ep=500)
+p=mtm.predict_result('model/mutil_300_LSTM_500_60to20.h5',x_test)
 
-mtm.evalute(predicted_data=p,y_test=np.reshape(y_test,(y_test.shape[0],y_test.shape[1])),plot_result_name='test.png',picture_name='test')
+mtm.evalute(predicted_data=p,y_test=np.reshape(y_test,(y_test.shape[0],y_test.shape[1])),plot_result_name='picture/mutil_300_LSTM_500_60to20.png',picture_name='mutil_300_LSTM_500_60to20')
+
 # tm=Time_Predict ('data/5class.csv',seq_len=100,label_len=10,teach_forecast=False) 
 # [x_train,y_train,x_test,y_test]=tm.load_data()
 # # tm.rnn(x_train, y_train, 'model/4class_rnn2_300_10.h5', ep=300)
