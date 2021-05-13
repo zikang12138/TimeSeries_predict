@@ -1,3 +1,4 @@
+from typing import Sequence
 import numpy as np
 from tensorflow.keras.layers import Dense, Activation, Dropout
 from tensorflow.keras.models import Sequential
@@ -7,12 +8,13 @@ import matplotlib.pyplot as plt
 import time
 from tensorflow.keras.models import load_model
 import random
-
+from pandas import read_csv
+import pandas as pd
 class Time_Predict:
     '''
     用于时间序列预测的一个类
     '''
-    def __init__(self,data_name,seq_len,label_len,teach_forecast):
+    def __init__(self,data_name,seq_len,label_len,teach_forecast=False,n_features=1):
         #初始化
         #data_name:原始数据
         #seq_len 输入长度
@@ -22,6 +24,7 @@ class Time_Predict:
         self.seq_len=seq_len
         self.label_len=label_len
         self.teach_forecast=teach_forecast
+        self.n_features=n_features
 
     def normalise_windows(self,window_data):  # 数据全部除以最开始的数据再减一
         normalised_data = []
@@ -59,7 +62,7 @@ class Time_Predict:
 
     def rnn(self,x_train, y_train, model_save,  ep):#model_save 模型文件保存名 ep循环次数
         model = Sequential()
-        model.add(SimpleRNN(100, return_sequences=True, input_shape=(self.seq_len, 1)))
+        model.add(SimpleRNN(100, return_sequences=True, input_shape=(self.seq_len, self.n_features)))
         model.add(Dropout(0.2))
         model.add(SimpleRNN(100, return_sequences=False))
         model.add(Dropout(0.2))
@@ -77,7 +80,7 @@ class Time_Predict:
 
     def lstm(self,x_train, y_train, model_save, ep):
         model = Sequential()
-        model.add(LSTM(100, return_sequences=True, input_shape=(self.seq_len, 1)))
+        model.add(LSTM(100, return_sequences=True, input_shape=(self.seq_len, self.n_features)))
         model.add(Dropout(0.2))
         model.add(LSTM(100, return_sequences=False))
         model.add(Dropout(0.2))
@@ -94,7 +97,7 @@ class Time_Predict:
 
     def cnn(self,x_train, y_train, model_save, ep):
         model = Sequential()
-        model.add(Conv1D(filters=64, kernel_size=2, activation='tanh', input_shape=(self.seq_len, 1)))
+        model.add(Conv1D(filters=64, kernel_size=2, activation='tanh', input_shape=(self.seq_len, self.n_features)))
         model.add(MaxPool1D(pool_size=2))
         model.add(Flatten())
         model.add(Dense(50, activation='tanh'))
@@ -119,7 +122,7 @@ class Time_Predict:
         plt.legend()
         plt.savefig(plot_save)
 
-    def predict_point_by_point(self,model_save, x_test):#model——save模型保存名 
+    def predict_result(self,model_save, x_test):#model——save模型保存名 
         model=load_model(model_save)#读取模型
         if self.teach_forecast:
             y_hat=x_test
@@ -137,7 +140,7 @@ class Time_Predict:
             predictedss=predictedss.transpose(1,0,2)
             predictedss=np.reshape(predictedss, (predictedss.shape[0],predictedss.shape[1]))
         else:
-            predictedss = model.predict(x_test)  # 输入测试集的全部数据进行全部预测，（412，1）
+            predictedss = model.predict(x_test)  # 输入测试集的全部数据进行全部预测，
         #predicted = np.reshape(predicted, (predicted.size,))
         return predictedss
 
@@ -156,7 +159,7 @@ class Time_Predict:
         mse=np.average(abs(m))
         return mse
 
-    def evalute(self,predicted_data,y_test,plot_result_name,picture_name,model_name):
+    def evalute(self,predicted_data,y_test,plot_result_name,picture_name,model_name=None):
         n=len(y_test)
         m=abs(y_test-predicted_data)
         k=[]
@@ -169,8 +172,62 @@ class Time_Predict:
         print(ave)
 
 
-tm=Time_Predict ('data/5class.csv',seq_len=100,label_len=10,teach_forecast=False) 
-[x_train,y_train,x_test,y_test]=tm.load_data()
-# tm.rnn(x_train, y_train, 'model/4class_rnn2_300_10.h5', ep=300)
-p=tm.predict_point_by_point('model/5class_rnn_300_10.h5', x_test)
-tm.evalute(predicted_data=p, y_test=y_test, plot_result_name='picture/5class_rnn_300_100to10.png', picture_name='5class_rnn_300_100to10',model_name='lstm')
+
+class multi_Time_Predict(Time_Predict):
+    def load_data(self):
+        dataset = pd.read_csv(self.data_name)
+        x_1 = dataset['x1']
+        y = dataset['y']
+        x_1 = x_1.values
+        y = y.values
+        x_1 = x_1.reshape((len(x_1), 1))
+        y = y.reshape((len(y), 1))
+        sequences = np.hstack((x_1, y))
+        split=round(0.9*sequences.shape[0])
+        X, y = list(), list()
+        for i in range(len(sequences)):
+            # find the end of this pattern
+            end_ix = i + self.seq_len
+            out_end_ix = end_ix + self.label_len-1
+            # check if we are beyond the dataset
+            if out_end_ix > len(sequences):
+                break
+            # gather input and output parts of the pattern
+            seq_x, seq_y = sequences[i:end_ix, :], sequences[end_ix-1:out_end_ix, -1]
+            X.append(seq_x)
+            y.append(seq_y)
+        X=np.array(X)
+        y=np.array(y)
+        y=np.reshape(y,(y.shape[0],y.shape[1],1))
+        x_train , y_train = X[:split, :] , y[:split, :]
+        x_test , y_test = X[split:, :] , y[split:, :]
+        return x_train,y_train,x_test,y_test
+    
+    def LSTM(self,x_train,y_train,model_save,ep):
+        model = Sequential()
+        model.add(LSTM(100, return_sequences=True, input_shape=(self.seq_len, self.n_features)))
+        model.add(Dropout(0.2))
+        model.add(LSTM(100, return_sequences=False))
+        model.add(Dropout(0.2))
+        if self.teach_forecast:
+            model.add(Dense(1))
+        else:
+            model.add(Dense(self.label_len))
+        model.add(Activation('linear'))
+        model.compile(loss='mse', optimizer='adam')
+        start = time.time()
+        model.fit(x_train, y_train, batch_size=64, epochs=ep, validation_split=0.05)
+        print('compilation time : ', time.time() - start)
+        model.save(model_save)
+
+mtm=multi_Time_Predict('test.csv',seq_len=60,label_len=10,n_features=2)
+[x_train,y_train,x_test,y_test]=mtm.load_data()
+# mtm.LSTM(x_train,y_train,model_save='test.h5',ep=30)
+p=mtm.predict_result('test.h5',x_test)
+
+mtm.evalute(predicted_data=p,y_test=np.reshape(y_test,(y_test.shape[0],y_test.shape[1])),plot_result_name='test.png',picture_name='test')
+# tm=Time_Predict ('data/5class.csv',seq_len=100,label_len=10,teach_forecast=False) 
+# [x_train,y_train,x_test,y_test]=tm.load_data()
+# # tm.rnn(x_train, y_train, 'model/4class_rnn2_300_10.h5', ep=300)
+# p=tm.predict_point_by_point('model/5class_rnn_300_10.h5', x_test)
+# tm.evalute(predicted_data=p, y_test=y_test, plot_result_name='picture/5class_rnn_300_100to10.png', picture_name='5class_rnn_300_100to10',model_name='lstm')
