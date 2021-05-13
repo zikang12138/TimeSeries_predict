@@ -205,10 +205,10 @@ class multi_Time_Predict(Time_Predict):
     
     def LSTM(self,x_train,y_train,model_save,ep):
         model = Sequential()
-        model.add(LSTM(100, return_sequences=True, input_shape=(self.seq_len, self.n_features)))
-        model.add(Dropout(0.2))
-        model.add(LSTM(100, return_sequences=False))
-        model.add(Dropout(0.2))
+        model.add(LSTM(50, return_sequences=False, input_shape=(self.seq_len, self.n_features)))
+        model.add(Dense(50))
+        model.add(Dense(50))
+        model.add(Dense(50))
         if self.teach_forecast:
             model.add(Dense(1))
         else:
@@ -220,7 +220,7 @@ class multi_Time_Predict(Time_Predict):
         print('compilation time : ', time.time() - start)
         model.save(model_save)
 
-mtm=multi_Time_Predict('test.csv',seq_len=60,label_len=10,n_features=2)
+mtm=multi_Time_Predict('test.csv',seq_len=60,label_len=20,n_features=2)
 [x_train,y_train,x_test,y_test]=mtm.load_data()
 # mtm.LSTM(x_train,y_train,model_save='test.h5',ep=30)
 p=mtm.predict_result('test.h5',x_test)
