@@ -1,3 +1,4 @@
+from re import M
 from typing import Sequence
 import numpy as np
 from tensorflow.keras.layers import Dense, Activation, Dropout
@@ -10,6 +11,7 @@ from tensorflow.keras.models import load_model
 import random
 from pandas import read_csv
 import pandas as pd
+
 class Time_Predict:
     '''
     用于时间序列预测的一个类
@@ -220,12 +222,17 @@ class multi_Time_Predict(Time_Predict):
         print('compilation time : ', time.time() - start)
         model.save(model_save)
 
-mtm=multi_Time_Predict('test.csv',seq_len=60,label_len=20,n_features=2)
-[x_train,y_train,x_test,y_test]=mtm.load_data()
-# mtm.LSTM(x_train,y_train,model_save='model/mutil_300_LSTM_500_60to20.h5',ep=500)
-p=mtm.predict_result('model/mutil_300_LSTM_500_60to20.h5',x_test)
-
-mtm.evalute(predicted_data=p,y_test=np.reshape(y_test,(y_test.shape[0],y_test.shape[1])),plot_result_name='picture/mutil_300_LSTM_500_60to20.png',picture_name='mutil_300_LSTM_500_60to20')
+t1=Time_Predict('data/4class.csv',seq_len=100,label_len=50,n_features=1)
+[x_train,y_train,x_test,y_test]=t1.load_data()
+# t1.lstm(x_train,y_train,model_save='model/4class_300_LSTM_100to50.h5',ep=300)
+# t1.rnn(x_train,y_train,model_save='model/4class_300_rnn_100to50.h5',ep=300)
+t1.cnn(x_train,y_train,model_save='model/4class_300_cnn_100to50.h5',ep=300)
+tp1=t1.predict_result('model/4class_300_LSTM_100to50.h5',x_test)
+tp2=t1.predict_result('model/4class_300_rnn_100to50.h5',x_test)
+tp3=t1.predict_result('model/4class_300_cnn_100to50.h5',x_test)
+t1.evalute(predicted_data=tp1,y_test=np.reshape(y_test,(y_test.shape[0],y_test.shape[1])),plot_result_name='picture/4class_300_LSTM_100to50.png',picture_name='4class_300_LSTM_100to50',model_name='LSTM')
+t1.evalute(predicted_data=tp2,y_test=np.reshape(y_test,(y_test.shape[0],y_test.shape[1])),plot_result_name='picture/4class_300_RNN_100to50.png',picture_name='4class_300_RNN_100to50',model_name='RNN')
+t1.evalute(predicted_data=tp3,y_test=np.reshape(y_test,(y_test.shape[0],y_test.shape[1])),plot_result_name='picture/4class_300_CNN_100to50.png',picture_name='4class_300_CNN_100to50',model_name='CNN')
 
 # tm=Time_Predict ('data/5class.csv',seq_len=100,label_len=10,teach_forecast=False) 
 # [x_train,y_train,x_test,y_test]=tm.load_data()
