@@ -224,11 +224,16 @@ class multi_Time_Predict(Time_Predict):
 
 TP=Time_Predict('data/mutil_ctrl.csv',100,10,n_features=1)
 [x_train1,y_train1,x_test1,y_test1]=TP.load_data()
-TP.lstm(x_train1,y_train1,'mutil_ctrl_300_100to10.h5',ep=300)
+#TP.lstm(x_train1,y_train1,'mutil_ctrl_300_100to10.h5',ep=300)
 
 MTP=multi_Time_Predict('data/mutil.csv',100,10,n_features=2)
 [x_train2,y_train2,x_test2,y_test2]=MTP.load_data()
-MTP.LSTM(x_train2,y_train2,'mutil_300_100to10.h5',ep=300)
+MTP.lstm(x_train2,y_train2,'mutil2_300_100to10.h5',ep=300)
+tp1=TP.predict_result('mutil_ctrl_300_100to10.h5',x_test1)
+tp2=MTP.predict_result('mutil2_300_100to10.h5',x_test2)
+
+TP.evalute(tp1,y_test1,'picture/mutil_ctrl_300_100to10.png','mutil_ctrl_300_100to10')
+MTP.evalute(predicted_data=tp2,y_test=np.reshape(y_test2,(y_test2.shape[0],y_test2.shape[1])), plot_result_name='picture/mutil2_300_100to10.png',picture_name='mutil_300_100to10')
 
 # t1=Time_Predict('data/4class-10800.csv',seq_len=100,label_len=10,n_features=1)
 # [x_train,y_train,x_test,y_test]=t1.load_data()
