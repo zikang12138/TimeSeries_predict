@@ -11,6 +11,7 @@ from tensorflow.keras.models import load_model
 import random
 from pandas import read_csv
 import pandas as pd
+from sklearn.preprocessing import MinMaxScaler
 
 class Time_Predict:
     '''
@@ -47,13 +48,12 @@ class Time_Predict:
         result = []
         for index in range(len(data) - sequence_lenghth):
             result.append(data[index: index + sequence_lenghth])  # 制作数据集，从data里面分割数据
-        if normalise_window:
+        if normalise_window:          
             result = self.normalise_windows(result)
         result = np.array(result)  # shape (4121,51) 4121代表行，51是seq_len+1
         row = round(0.9 * result.shape[0])  # round() 方法返回浮点数x的四舍五入值
         train = result[:int(row), :]  # 取前90%
-        if normalise_window:
-            np.random.shuffle(train)  # shuffle() 方法将序列的所有元素随机排序。
+
         x_train = train[:, :-self.label_len]  # 取前50列，作为训练数据
         y_train = train[:, -self.label_len:]  # 取最后一列作为标签
         x_test = result[int(row):, :-self.label_len]  # 取后10% 的前50列作为测试集
@@ -222,50 +222,3 @@ class multi_Time_Predict(Time_Predict):
         print('compilation time : ', time.time() - start)
         model.save(model_save)
 
-TP=Time_Predict('data/mutil_ctrl.csv',100,10,n_features=1)
-[x_train1,y_train1,x_test1,y_test1]=TP.load_data()
-TP.cnn(x_train1,y_train1,'mutil_ctrl_cnn_300_100to10.h5',ep=300)
-TP.rnn(x_train1,y_train1,'mutil_ctrl_rnn_300_100to10.h5',ep=300)
-
-MTP=multi_Time_Predict('data/mutil.csv',100,10,n_features=2)
-[x_train2,y_train2,x_test2,y_test2]=MTP.load_data()
-MTP.cnn(x_train2,y_train2,'mutil_cnn_300_100to10.h5',ep=300)
-MTP.rnn(x_train2,y_train2,'mutil_rnn_300_100to10.h5',ep=300)
-
-tp1=TP.predict_result('mutil_ctrl_cnn_300_100to10.h5',x_test1)
-tp2=TP.predict_result('mutil_ctrl_rnn_300_100to10.h5',x_test1)
-
-mtp1=MTP.predict_result('mutil_cnn_300_100to10.h5',x_test2)
-mtp2=MTP.predict_result('mutil_rnn_300_100to10.h5',x_test2)
-
-TP.evalute(picture_name=tp1,y_test=y_test1,plot_result_name='mutil_ctrl_cnn_300_100to10.png',picture_name='mutil_ctrl_cnn_300_100to10',model_name='cnn')
-TP.evalute(picture_name=tp2,y_test=y_test1,plot_result_name='mutil_ctrl_rnn_300_100to10.png',picture_name='mutil_ctrl_rnn_300_100to10',model_name='rnn')
-
-MTP.evalute(predicted_data=mtp1,y_test=np.reshape(y_test2,(y_test2.shape[0],y_test2.shape[1])),plot_result_name='mutil_cnn_300_100to10.png',picture_name='mutil_cnn_300_100to10',model_name='CNN')
-MTP.evalute(predicted_data=mtp2,y_test=np.reshape(y_test2,(y_test2.shape[0],y_test2.shape[1])),plot_result_name='mutil_rnn_300_100to10.png',picture_name='mutil_rnn_300_100to10',model_name='RNN')
-
-# MTP.lstm(x_train2,y_train2,'mutil2_300_100to10.h5',ep=300)
-# tp1=TP.predict_result('mutil_ctrl_300_100to10.h5',x_test1)
-# tp2=MTP.predict_result('mutil2_300_100to10.h5',x_test2)
-
-# TP.evalute(tp1,y_test1,'picture/mutil_ctrl_300_100to10.png','mutil_ctrl_300_100to10')
-# MTP.evalute(predicted_data=tp2,y_test=np.reshape(y_test2,(y_test2.shape[0],y_test2.shape[1])), plot_result_name='picture/mutil2_300_100to10.png',picture_name='mutil_300_100to10')
-
-
-# t1=Time_Predict('data/4class-10800.csv',seq_len=100,label_len=10,n_features=1)
-# [x_train,y_train,x_test,y_test]=t1.load_data()
-# # t1.lstm(x_train,y_train,model_save='model/4class-10800_300_LSTM_100to10.h5',ep=300)
-# # t1.rnn(x_train,y_train,model_save='model/4class-10800_300_rnn_100to10.h5',ep=300)
-# # t1.cnn(x_train,y_train,model_save='model/4class-7200_300_cnn_100to10.h5',ep=300)
-# tp1=t1.predict_result('model/4class-10800_300_LSTM_100to10.h5',x_test)
-# tp2=t1.predict_result('model/4class-10800_300_rnn_100to10.h5',x_test)
-# tp3=t1.predict_result('model/4class-10800_300_cnn_100to10.h5',x_test)
-# t1.evalute(predicted_data=tp1,y_test=np.reshape(y_test,(y_test.shape[0],y_test.shape[1])),plot_result_name='picture/4class-10800_300_LSTM_100to10.png',picture_name='4class-10800_300_LSTM_100to10',model_name='LSTM')
-# t1.evalute(predicted_data=tp2,y_test=np.reshape(y_test,(y_test.shape[0],y_test.shape[1])),plot_result_name='picture/4class-10800_300_RNN_100to10.png',picture_name='4class-10800_300_RNN_100to10',model_name='RNN')
-# t1.evalute(predicted_data=tp3,y_test=np.reshape(y_test,(y_test.shape[0],y_test.shape[1])),plot_result_name='picture/4class-10800_300_CNN_100to10.png',picture_name='4class-10800_300_CNN_100to10',model_name='CNN')
-
-# tm=Time_Predict ('data/5class.csv',seq_len=100,label_len=10,teach_forecast=False) 
-# [x_train,y_train,x_test,y_test]=tm.load_data()
-# # tm.rnn(x_train, y_train, 'model/4class_rnn2_300_10.h5', ep=300)
-# p=tm.predict_point_by_point('model/5class_rnn_300_10.h5', x_test)
-# tm.evalute(predicted_data=p, y_test=y_test, plot_result_name='picture/5class_rnn_300_100to10.png', picture_name='5class_rnn_300_100to10',model_name='lstm')
