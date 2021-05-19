@@ -1,17 +1,16 @@
-from re import M
-from typing import Sequence
+
 import numpy as np
 from tensorflow.keras.layers import Dense, Activation, Dropout
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.models import Model
+
 from tensorflow.keras.layers import LSTM,SimpleRNN,Conv1D,MaxPool1D,Flatten
 import matplotlib.pyplot as plt
 import time
 from tensorflow.keras.models import load_model
-import random
+
 from pandas import read_csv
 import pandas as pd
-from sklearn.preprocessing import MinMaxScaler
+
 
 class Time_Predict:
     '''
@@ -29,14 +28,7 @@ class Time_Predict:
         self.teach_forecast=teach_forecast
         self.n_features=n_features
 
-    def normalise_windows(self,window_data):  # 数据全部除以最开始的数据再减一
-        normalised_data = []
-        for window in window_data:
-            normalised_window = [((float(p) / float(window[1]))) for p in window]
-            normalised_data.append(normalised_window)
-        return normalised_data
-
-    def load_data(self, normalise_window=False):
+    def load_data(self):
         f = open(self.data_name, 'r').read()  # 读取文件中的数据
         data2 = f.split('\n')  # split() 方法用于把一个字符串分割成字符串数组，这里就是换行分割
         data = []
@@ -48,8 +40,6 @@ class Time_Predict:
         result = []
         for index in range(len(data) - sequence_lenghth):
             result.append(data[index: index + sequence_lenghth])  # 制作数据集，从data里面分割数据
-        if normalise_window:          
-            result = self.normalise_windows(result)
         result = np.array(result)  # shape (4121,51) 4121代表行，51是seq_len+1
         row = round(0.9 * result.shape[0])  # round() 方法返回浮点数x的四舍五入值
         train = result[:int(row), :]  # 取前90%
@@ -95,7 +85,7 @@ class Time_Predict:
         start = time.time()
         model.fit(x_train, y_train, batch_size=64, epochs=ep, validation_split=0.05)
         print('compilation time : ', time.time() - start)
-        model.save(model_save)
+        model.save(model_save)     
 
     def cnn(self,x_train, y_train, model_save, ep):
         model = Sequential()
@@ -156,12 +146,11 @@ class Time_Predict:
         plt.savefig(save_name)
 
     def AVE(self,y_true, y_predict):
-        n = len(y_true)
         m = y_true - y_predict
-        mse=np.average(abs(m))
-        return mse
+        ave=np.average(abs(m))
+        return ave
 
-    def evalute(self,predicted_data,y_test,plot_result_name,picture_name,model_name=None):
+    def evalute(self,predicted_data,y_test,plot_result_name,picture_name):
         n=len(y_test)
         m=abs(y_test-predicted_data)
         k=[]
@@ -170,7 +159,7 @@ class Time_Predict:
         i=k.index(min(k))
         self.plot_results(predicted_data[i], y_test[i], plot_result_name,picture_name)
         ave=self.AVE(y_test,predicted_data)
-        print(model_name,end=" ")
+        print("loss: ")
         print(ave)
 
 
@@ -205,20 +194,14 @@ class multi_Time_Predict(Time_Predict):
         x_test , y_test = X[split:, :] , y[split:, :]
         return x_train,y_train,x_test,y_test
     
-    def LSTM(self,x_train,y_train,model_save,ep):
-        model = Sequential()
-        model.add(LSTM(50, return_sequences=False, input_shape=(self.seq_len, self.n_features)))
-        model.add(Dense(50))
-        model.add(Dense(50))
-        model.add(Dense(50))
-        if self.teach_forecast:
-            model.add(Dense(1))
-        else:
-            model.add(Dense(self.label_len))
-        model.add(Activation('linear'))
-        model.compile(loss='mse', optimizer='adam')
-        start = time.time()
-        model.fit(x_train, y_train, batch_size=64, epochs=ep, validation_split=0.05)
-        print('compilation time : ', time.time() - start)
-        model.save(model_save)
+
+
+'''
+代码运行实例 
+'''
+TM=Time_Predict(data_name='data/4class.csv',seq_len=100,label_len=10,teach_forecast=False,n_features=1)#定义一个time_predict类 
+[xtrain,ytrain,xtest,ytest]=TM.load_data()#获取数据
+TM.cnn(x_train=xtrain,y_train=ytrain,model_save='model/cnn.h5',ep=10)#cnn模型训练并生成训练文件 cnn.h5
+tmp=TM.predict_result(model_save='model/cnn.h5',x_test=xtest)#读取模型并生成预测值
+TM.evalute(predicted_data=tmp,y_test=ytest,plot_result_name='picture/cnn.png',picture_name='cnn')#评估模型， 生成预测曲线和实际曲线，图名为cnn 文件名为cnn.png
 
