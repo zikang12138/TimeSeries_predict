@@ -26,3 +26,5 @@ ep:迭代次数
 生成训练图像  
 model_save：读取保存的模型文件  
 plot_save: 保存训练图像
+#### predict_result(self,model_save, x_test)
+生成预测数据  
