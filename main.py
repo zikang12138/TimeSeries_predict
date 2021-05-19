@@ -2,13 +2,10 @@
 import numpy as np
 from tensorflow.keras.layers import Dense, Activation, Dropout
 from tensorflow.keras.models import Sequential
-
 from tensorflow.keras.layers import LSTM,SimpleRNN,Conv1D,MaxPool1D,Flatten
 import matplotlib.pyplot as plt
 import time
 from tensorflow.keras.models import load_model
-
-from pandas import read_csv
 import pandas as pd
 
 
