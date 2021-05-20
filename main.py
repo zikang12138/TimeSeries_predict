@@ -194,11 +194,19 @@ class multi_Time_Predict(Time_Predict):
 
 
 '''
-代码运行实例 
+代码运行实例 单变量
 '''
-TM=Time_Predict(data_name='data/4class.csv',seq_len=100,label_len=10,teach_forecast=False,n_features=1)#定义一个time_predict类 
-[xtrain,ytrain,xtest,ytest]=TM.load_data()#获取数据
-TM.cnn(x_train=xtrain,y_train=ytrain,model_save='model/cnn.h5',ep=10)#cnn模型训练并生成训练文件 cnn.h5
-tmp=TM.predict_result(model_save='model/cnn.h5',x_test=xtest)#读取模型文件并生成预测值
-TM.evalute(predicted_data=tmp,y_test=ytest,plot_result_name='picture/cnn.png',picture_name='cnn')#评估模型， 生成预测曲线和实际曲线，图名为cnn 文件名为cnn.png
+TP=Time_Predict(data_name='data/4class.csv',seq_len=100,label_len=10,teach_forecast=False,n_features=1)#定义一个time_predict类 
+[xtrain,ytrain,xtest,ytest]=TP.load_data()#获取数据
+TP.cnn(x_train=xtrain,y_train=ytrain,model_save='model/cnn.h5',ep=10)#cnn模型训练并生成训练文件 cnn.h5
+tp=TP.predict_result(model_save='model/cnn.h5',x_test=xtest)#读取模型文件并生成预测值
+TP.evalute(predicted_data=tp,y_test=ytest,plot_result_name='picture/cnn.png',picture_name='cnn')#评估模型， 生成预测曲线和实际曲线，图名为cnn 文件名为cnn.png
 
+'''
+代码运行实例 多变量
+'''
+MTP=multi_Time_Predict(data_name='data/mutil.csv',seq_len=100,label_len=10,teach_forecast=False,n_features=2)
+[xtrain2,ytrain2,xtest2,ytest2]=MTP.load_data()
+MTP.rnn(x_train=xtrain2,y_train=ytrain2,model_save='model/rnn.h5',ep=10)
+mtp=MTP.predict_result(model_save='model/rnn.h5',x_test=xtest2)
+MTP.evalute(predicted_data=mtp,y_test=np.reshape(ytest2,(ytest2.shape[0],ytest2.shape[1])),plot_result_name='picture/rnn.png',picture_name='rnn')
