@@ -42,31 +42,31 @@ model_save：读取保存的模型文件
 plot_save: 保存训练图像
 #### predict_result(model_save, x_test)
 生成预测数据  
-model_save:读取保存的模型文件  
-x_test: 测试集输入  
-返回值 根据x_test及模型产生的预测值  
-#### plot_results(self,predicted_data, true_data, save_name,picture_name)
-生成预测数据和真实数据的对比图 **不建议单独使用,因为在evluate函数中调用该函数**
-predicted_data：预测数据的一行
-true_data：真实的输出的一行
-save_name:设定图片文件名称 如cnn.png
-picture_name：图片标题名字
-#### AVE(self,y_true, y_predict)
-评估真实数据与预测数据的误差 公式$$L=\frac{1}{n}\sum_{i=0}^n\frac{|y\_true-y\_predict|}{|y\_true|}$$
-**不建议单独使用,因为在evluate函数中调用该函数**
-#### evalute(self,predicted_data,y_test,plot_result_name,picture_name)
-输出预测图像及误差
-predicted_data：预测数据
-y_test：测试集输出
-plot_result_name：保存的图片名
-picture_name：图片题目
+model_save:读取保存的模型文件   
+x_test: 测试集输入    
+返回值 根据x_test及模型产生的预测值   
+#### plot_results(self,predicted_data, true_data, save_name,picture_name)  
+生成预测数据和真实数据的对比图 **不建议单独使用,因为在evluate函数中调用该函数**  
+predicted_data：预测数据的一行  
+true_data：真实的输出的一行  
+save_name:设定图片文件名称 如cnn.png  
+picture_name：图片标题名字  
+#### AVE(self,y_true, y_predict)  
+评估真实数据与预测数据的误差 公式  $$L=\frac{1}{n}\sum_{i=0}^n\frac{|y\_true-y\_predict|}{|y\_true|}$$  
+**不建议单独使用,因为在evluate函数中调用该函数**  
+#### evalute(self,predicted_data,y_test,plot_result_name,picture_name)  
+输出预测图像及误差  
+predicted_data：预测数据  
+y_test：测试集输出  
+plot_result_name：保存的图片名  
+picture_name：图片题目  
 **注意本函数输入的图片是拟合效果最好的，并不代表全部**
-### multi_Time_Predict
-继承自Time_Predict类，完成多输入预测
-参数与Time_Predict相同，但是**n_feature=2(2以上不清楚，请自行探索)**
-该类函数使用方法与Time_Predict相同
+### multi_Time_Predict  
+继承自Time_Predict类，完成多输入预测  
+参数与Time_Predict相同，但是**n_feature=2(2以上不清楚，请自行探索)**  
+该类函数使用方法与Time_Predict相同  
 主要在evalute中 MTP.evalute(predicted_data=mtp,**y_test=np.reshape(ytest2,(ytest2.shape[0],ytest2.shape[1]))**,plot_result_name='picture/rnn.png',picture_name='rnn')
-注意加粗部分，对y_test做变形操作
+注意加粗部分，对y_test做变形操作  
 ## 实例
 在main.py中，类定义后面已经加入如下的示意代码 
 ```
