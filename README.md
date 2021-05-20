@@ -1,20 +1,20 @@
 # 代码文档
 ## 环境要求
-python 3.8
-tensorflow 2.4.1
-Keras 2.4.3
-numpy 1.19.5
-matplotlib 3.4.1
-pandas  1.2.4
-ide pycharm或vscode
+python 3.8  
+tensorflow 2.4.1  
+Keras 2.4.3  
+numpy 1.19.5  
+matplotlib 3.4.1  
+pandas  1.2.4  
+ide pycharm或vscode  
 ## 组织结构
-data 存放数据
-model 存放模型文件
-picture 存放图片
-main.py 主程序
+data 存放数据  
+model 存放模型文件  
+picture 存放图片  
+main.py 主程序  
 ## 输入要求
-单变量输入请以4class.csv为例，其中数据为船舶运动
-多变量请以mutil.csv为例，其中x1为波浪数据，y为船舶运动
+单变量输入请以4class.csv为例，其中数据为船舶运动  
+多变量请以mutil.csv为例，其中x1为波浪数据，y为船舶运动  
 ## 函数说明
 ### Time_Predict类
 这是一个时间序列的类（单变量预测)  
