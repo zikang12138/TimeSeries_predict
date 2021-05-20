@@ -172,7 +172,7 @@ class multi_Time_Predict(Time_Predict):
         y = y.reshape((len(y), 1))
         sequences = np.hstack((x_1, y))
         split=round(0.9*sequences.shape[0])
-        X, y = list(), list()
+        X, Y = list(), list()
         for i in range(len(sequences)):
             # find the end of this pattern
             end_ix = i + self.seq_len
@@ -183,12 +183,12 @@ class multi_Time_Predict(Time_Predict):
             # gather input and output parts of the pattern
             seq_x, seq_y = sequences[i:end_ix, :], sequences[end_ix-1:out_end_ix, -1]
             X.append(seq_x)
-            y.append(seq_y)
+            Y.append(seq_y)
         X=np.array(X)
-        y=np.array(y)
-        y=np.reshape(y,(y.shape[0],y.shape[1],1))
-        x_train , y_train = X[:split, :] , y[:split, :]
-        x_test , y_test = X[split:, :] , y[split:, :]
+        Y=np.array(Y)
+        Y=np.reshape(Y,(Y.shape[0],Y.shape[1],1))
+        x_train , y_train = X[:split, :] , Y[:split, :]
+        x_test , y_test = X[split:, :] , Y[split:, :]
         return x_train,y_train,x_test,y_test
     
 
