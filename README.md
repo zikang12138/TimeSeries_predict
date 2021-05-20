@@ -86,8 +86,8 @@ MTP.evalute(predicted_data=mtp,y_test=ytest2,plot_result_name='picture/rnn.png',
 ```
 输出图像见picture内文件
 ## 参考资料
-（https://blog.csdn.net/weixin_39059031/article/details/82419728）
-（https://blog.csdn.net/weixin_39653948/article/details/105332534）
-（https://zhuanlan.zhihu.com/p/191211602）
-（https://zhuanlan.zhihu.com/p/51812293）
-（https://www.jianshu.com/p/de2008093115）
+https://blog.csdn.net/weixin_39059031/article/details/82419728  
+https://blog.csdn.net/weixin_39653948/article/details/105332534  
+https://zhuanlan.zhihu.com/p/191211602  
+https://zhuanlan.zhihu.com/p/51812293  
+https://www.jianshu.com/p/de2008093115  
