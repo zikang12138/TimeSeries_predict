@@ -1,4 +1,5 @@
 
+from re import X
 import numpy as np
 from tensorflow.keras.layers import Dense, Activation, Dropout
 from tensorflow.keras.models import Sequential
@@ -51,10 +52,10 @@ class Time_Predict:
 
     def rnn(self,x_train, y_train, model_save,  ep):#model_save 模型文件保存名 ep循环次数
         model = Sequential()
-        model.add(SimpleRNN(100, return_sequences=True, input_shape=(self.seq_len, self.n_features)))
-        model.add(Dropout(0.2))
-        model.add(SimpleRNN(100, return_sequences=False))
-        model.add(Dropout(0.2))
+        model.add(SimpleRNN(100, return_sequences=False, input_shape=(self.seq_len, self.n_features)))
+        model.add(Dense(50,activation='tanh'))
+        model.add(Dense(50,activation='tanh'))
+        model.add(Dense(50,activation='tanh'))
         if self.teach_forecast:
             model.add(Dense(1))
         else:
@@ -69,10 +70,11 @@ class Time_Predict:
 
     def lstm(self,x_train, y_train, model_save, ep):
         model = Sequential()
-        model.add(LSTM(100, return_sequences=True, input_shape=(self.seq_len, self.n_features)))
+        model.add(LSTM(100, return_sequences=False, input_shape=(self.seq_len, self.n_features)))
         model.add(Dropout(0.2))
-        model.add(LSTM(100, return_sequences=False))
+        model.add(LSTM(100, return_sequences=False, input_shape=(self.seq_len, self.n_features)))
         model.add(Dropout(0.2))
+        model.add(Dense(50))
         if self.teach_forecast:
             model.add(Dense(1))
         else:
@@ -162,15 +164,16 @@ class Time_Predict:
 
 
 class multi_Time_Predict(Time_Predict):
-    def load_data(self):
+    def load_data(self,forecast_num=0):
         dataset = pd.read_csv(self.data_name)
         x_1 = dataset['x1']
         y = dataset['y']
         x_1 = x_1.values
         y = y.values
-        x_1 = x_1.reshape((len(x_1), 1))
-        y = y.reshape((len(y), 1))
-        sequences = np.hstack((x_1, y))
+        n=len(x_1)
+        x_1 = x_1.reshape((n, 1))
+        y = y.reshape((n, 1))
+        sequences = np.hstack((x_1[forecast_num:,:], y[:n-forecast_num,:]))
         split=round(0.9*sequences.shape[0])
         X, Y = list(), list()
         for i in range(len(sequences)):
@@ -196,17 +199,25 @@ class multi_Time_Predict(Time_Predict):
 '''
 代码运行实例 单变量
 '''
-TP=Time_Predict(data_name='data/4class.csv',seq_len=100,label_len=10,teach_forecast=False,n_features=1)#定义一个time_predict类 
-[xtrain,ytrain,xtest,ytest]=TP.load_data()#获取数据
-TP.cnn(x_train=xtrain,y_train=ytrain,model_save='model/cnn.h5',ep=10)#cnn模型训练并生成训练文件 cnn.h5
-tp=TP.predict_result(model_save='model/cnn.h5',x_test=xtest)#读取模型文件并生成预测值
-TP.evalute(predicted_data=tp,y_test=ytest,plot_result_name='picture/cnn.png',picture_name='cnn')#评估模型， 生成预测曲线和实际曲线，图名为cnn 文件名为cnn.png
+# TP=Time_Predict(data_name='data/4class.csv',seq_len=100,label_len=10,teach_forecast=False,n_features=1)#定义一个time_predict类 
+# [xtrain,ytrain,xtest,ytest]=TP.load_data()#获取数据
+# TP.cnn(x_train=xtrain,y_train=ytrain,model_save='model/cnn.h5',ep=10)#cnn模型训练并生成训练文件 cnn.h5
+# tp=TP.predict_result(model_save='model/cnn.h5',x_test=xtest)#读取模型文件并生成预测值
+# TP.evalute(predicted_data=tp,y_test=ytest,plot_result_name='picture/cnn.png',picture_name='cnn')#评估模型， 生成预测曲线和实际曲线，图名为cnn 文件名为cnn.png
 
 '''
 代码运行实例 多变量
 '''
 MTP=multi_Time_Predict(data_name='data/mutil.csv',seq_len=100,label_len=10,teach_forecast=False,n_features=2)
-[xtrain2,ytrain2,xtest2,ytest2]=MTP.load_data()
-MTP.rnn(x_train=xtrain2,y_train=ytrain2,model_save='model/rnn.h5',ep=10)
-mtp=MTP.predict_result(model_save='model/rnn.h5',x_test=xtest2)
-MTP.evalute(predicted_data=mtp,y_test=np.reshape(ytest2,(ytest2.shape[0],ytest2.shape[1])),plot_result_name='picture/rnn.png',picture_name='rnn')
+[xtrain2,ytrain2,xtest2,ytest2]=MTP.load_data(forecast_num=10)
+MTP.rnn(x_train=xtrain2,y_train=ytrain2,model_save='model/mutil_rnn_forecast10_300_100to10.h5',ep=300)
+# MTP.cnn(x_train=xtrain2,y_train=ytrain2,model_save='model/mutil_cnn_forecast10_300_100to10.h5',ep=300)
+# MTP.lstm(x_train=xtrain2,y_train=ytrain2,model_save='model/mutil_lstm_forecast10_300_100to10.h5',ep=300)
+
+mtp1=MTP.predict_result(model_save='model/mutil_rnn_forecast10_300_100to10.h5',x_test=xtest2)
+mtp2=MTP.predict_result(model_save='model/mutil_cnn_forecast10_300_100to10.h5',x_test=xtest2)
+mtp3=MTP.predict_result(model_save='model/mutil_lstm_forecast10_300_100to10.h5',x_test=xtest2)
+
+MTP.evalute(predicted_data=mtp1,y_test=np.reshape(ytest2,(ytest2.shape[0],ytest2.shape[1])),plot_result_name='picture/mutil_rnn_forecast10_300_100to10.png',picture_name='mutil_rnn_forecast10_300_100to10')
+MTP.evalute(predicted_data=mtp2,y_test=np.reshape(ytest2,(ytest2.shape[0],ytest2.shape[1])),plot_result_name='picture/mutil_cnn_forecast10_300_100to10.png',picture_name='mutil_cnn_forecast10_300_100to10')
+MTP.evalute(predicted_data=mtp3,y_test=np.reshape(ytest2,(ytest2.shape[0],ytest2.shape[1])),plot_result_name='picture/mutil_lstm_forecast10_300_100to10.png',picture_name='mutil_lstm_forecast10_300_100to10')
