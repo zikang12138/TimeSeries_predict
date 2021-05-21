@@ -52,6 +52,8 @@ class Time_Predict:
 
     def rnn(self,x_train, y_train, model_save,ep,non_linear_layer=True):#model_save 模型文件保存名 ep循环次数
         model = Sequential()
+        model.add(SimpleRNN(100, return_sequences=True, input_shape=(self.seq_len, self.n_features)))
+        model.add(Dropout(0.2))
         model.add(SimpleRNN(100, return_sequences=False, input_shape=(self.seq_len, self.n_features)))
         model.add(Dropout(0.2))
         if non_linear_layer:
@@ -72,6 +74,8 @@ class Time_Predict:
 
     def lstm(self,x_train, y_train, model_save, ep,non_linear_layer=True):
         model = Sequential()
+        model.add(LSTM(100, return_sequences=True, input_shape=(self.seq_len, self.n_features)))
+        model.add(Dropout(0.2))
         model.add(LSTM(100, return_sequences=False, input_shape=(self.seq_len, self.n_features)))
         model.add(Dropout(0.2))
         if non_linear_layer:
@@ -202,11 +206,14 @@ class multi_Time_Predict(Time_Predict):
 '''
 代码运行实例 单变量
 '''
-TM=Time_Predict('data/4class.csv',100,10)
-[xtrain,ytrain,xtest,ytest]=TM.load_data()
-TM.rnn(xtrain,ytrain,'model/4class_7200_rnn_nonlinear_300_100to10',300)
-TM.lstm(xtrain,ytrain,'model/4class_7200_lstm_nonlinear_300_100to10',300)
-tm1=TM.predict_result('model/4class_7200_rnn_nonlinear_300_100to10',xtest)
-tm2=TM.predict_result('model/4class_7200_lstm_nonlinear_300_100to10',xtest)
-TM.AVE(ytest,tm1)
-TM.AVE(ytest,tm2)
+TM=multi_Time_Predict('data/mutil.csv',100,10,n_features=2)
+[xtrain,ytrain,xtest,ytest]=TM.load_data(forecast_num=10)
+# TM.rnn(xtrain,ytrain,'model/mutil_7200_rnn_forecast_300_100to10.h5',300,non_linear_layer=False)
+# TM.lstm(xtrain,ytrain,'model/mutil_7200_lstm_forecast_300_100to10.h5',300,non_linear_layer=False)
+#TM.cnn(xtrain,ytrain,'model/mutil_7200_cnn_forecast_300_100to10.h5',300)
+tm1=TM.predict_result('model/mutil_7200_rnn_forecast_300_100to10.h5',xtest)
+tm2=TM.predict_result('model/mutil_7200_lstm_forecast_300_100to10.h5',xtest)
+tm3=TM.predict_result('model/mutil_7200_cnn_forecast_300_100to10.h5',xtest)
+print(TM.AVE(y_true=np.reshape(ytest,(ytest.shape[0],ytest.shape[1])),y_predict=tm1))
+print(TM.AVE(y_true=np.reshape(ytest,(ytest.shape[0],ytest.shape[1])),y_predict=tm2))
+print(TM.AVE(y_true=np.reshape(ytest,(ytest.shape[0],ytest.shape[1])),y_predict=tm3))
