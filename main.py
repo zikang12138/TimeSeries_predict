@@ -50,12 +50,14 @@ class Time_Predict:
         x_test = np.reshape(x_test, (x_test.shape[0], x_test.shape[1], 1))
         return [x_train, y_train, x_test, y_test]
 
-    def rnn(self,x_train, y_train, model_save,  ep):#model_save 模型文件保存名 ep循环次数
+    def rnn(self,x_train, y_train, model_save,ep,non_linear_layer=True):#model_save 模型文件保存名 ep循环次数
         model = Sequential()
         model.add(SimpleRNN(100, return_sequences=False, input_shape=(self.seq_len, self.n_features)))
-        model.add(Dense(50,activation='tanh'))
-        model.add(Dense(50,activation='tanh'))
-        model.add(Dense(50,activation='tanh'))
+        model.add(Dropout(0.2))
+        if non_linear_layer:
+            model.add(Dense(50,activation='tanh'))
+        else:
+            model.add(Dense(50))
         if self.teach_forecast:
             model.add(Dense(1))
         else:
@@ -68,13 +70,14 @@ class Time_Predict:
         model.save(model_save)
 
 
-    def lstm(self,x_train, y_train, model_save, ep):
+    def lstm(self,x_train, y_train, model_save, ep,non_linear_layer=True):
         model = Sequential()
         model.add(LSTM(100, return_sequences=False, input_shape=(self.seq_len, self.n_features)))
         model.add(Dropout(0.2))
-        model.add(LSTM(100, return_sequences=False, input_shape=(self.seq_len, self.n_features)))
-        model.add(Dropout(0.2))
-        model.add(Dense(50))
+        if non_linear_layer:
+            model.add(Dense(50,activation='tanh'))
+        else:
+            model.add(Dense(50))
         if self.teach_forecast:
             model.add(Dense(1))
         else:
