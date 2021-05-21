@@ -202,25 +202,11 @@ class multi_Time_Predict(Time_Predict):
 '''
 代码运行实例 单变量
 '''
-# TP=Time_Predict(data_name='data/4class.csv',seq_len=100,label_len=10,teach_forecast=False,n_features=1)#定义一个time_predict类 
-# [xtrain,ytrain,xtest,ytest]=TP.load_data()#获取数据
-# TP.cnn(x_train=xtrain,y_train=ytrain,model_save='model/cnn.h5',ep=10)#cnn模型训练并生成训练文件 cnn.h5
-# tp=TP.predict_result(model_save='model/cnn.h5',x_test=xtest)#读取模型文件并生成预测值
-# TP.evalute(predicted_data=tp,y_test=ytest,plot_result_name='picture/cnn.png',picture_name='cnn')#评估模型， 生成预测曲线和实际曲线，图名为cnn 文件名为cnn.png
-
-'''
-代码运行实例 多变量
-'''
-MTP=multi_Time_Predict(data_name='data/mutil.csv',seq_len=100,label_len=10,teach_forecast=False,n_features=2)
-[xtrain2,ytrain2,xtest2,ytest2]=MTP.load_data(forecast_num=10)
-MTP.rnn(x_train=xtrain2,y_train=ytrain2,model_save='model/mutil_rnn_forecast10_300_100to10.h5',ep=300)
-# MTP.cnn(x_train=xtrain2,y_train=ytrain2,model_save='model/mutil_cnn_forecast10_300_100to10.h5',ep=300)
-# MTP.lstm(x_train=xtrain2,y_train=ytrain2,model_save='model/mutil_lstm_forecast10_300_100to10.h5',ep=300)
-
-mtp1=MTP.predict_result(model_save='model/mutil_rnn_forecast10_300_100to10.h5',x_test=xtest2)
-mtp2=MTP.predict_result(model_save='model/mutil_cnn_forecast10_300_100to10.h5',x_test=xtest2)
-mtp3=MTP.predict_result(model_save='model/mutil_lstm_forecast10_300_100to10.h5',x_test=xtest2)
-
-MTP.evalute(predicted_data=mtp1,y_test=np.reshape(ytest2,(ytest2.shape[0],ytest2.shape[1])),plot_result_name='picture/mutil_rnn_forecast10_300_100to10.png',picture_name='mutil_rnn_forecast10_300_100to10')
-MTP.evalute(predicted_data=mtp2,y_test=np.reshape(ytest2,(ytest2.shape[0],ytest2.shape[1])),plot_result_name='picture/mutil_cnn_forecast10_300_100to10.png',picture_name='mutil_cnn_forecast10_300_100to10')
-MTP.evalute(predicted_data=mtp3,y_test=np.reshape(ytest2,(ytest2.shape[0],ytest2.shape[1])),plot_result_name='picture/mutil_lstm_forecast10_300_100to10.png',picture_name='mutil_lstm_forecast10_300_100to10')
+TM=Time_Predict('data/4class.csv',100,10)
+[xtrain,ytrain,xtest,ytest]=TM.load_data()
+TM.rnn(xtrain,ytrain,'model/4class_7200_rnn_nonlinear_300_100to10',300)
+TM.lstm(xtrain,ytrain,'model/4class_7200_lstm_nonlinear_300_100to10',300)
+tm1=TM.predict_result('model/4class_7200_rnn_nonlinear_300_100to10',xtest)
+tm2=TM.predict_result('model/4class_7200_lstm_nonlinear_300_100to10',xtest)
+TM.AVE(ytest,tm1)
+TM.AVE(ytest,tm2)
