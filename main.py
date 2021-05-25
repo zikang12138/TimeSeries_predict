@@ -70,7 +70,7 @@ class Time_Predict:
 
     def lstm(self,x_train, y_train, model_save, ep):
         model = Sequential()
-        model.add(LSTM(100, return_sequences=False, input_shape=(self.seq_len, self.n_features)))
+        model.add(LSTM(100, return_sequences=True, input_shape=(self.seq_len, self.n_features)))
         model.add(Dropout(0.2))
         model.add(LSTM(100, return_sequences=False, input_shape=(self.seq_len, self.n_features)))
         model.add(Dropout(0.2))
@@ -198,7 +198,7 @@ class multi_Time_Predict(Time_Predict):
 
 '''
 代码运行实例 单变量
-'''
+# '''
 TP=Time_Predict(data_name='data/4class.csv',seq_len=100,label_len=10,teach_forecast=False,n_features=1)#定义一个time_predict类 
 [xtrain,ytrain,xtest,ytest]=TP.load_data()#获取数据
 TP.cnn(x_train=xtrain,y_train=ytrain,model_save='model/cnn.h5',ep=10)#cnn模型训练并生成训练文件 cnn.h5
@@ -210,9 +210,9 @@ TP.evalute(predicted_data=tp,y_test=ytest,plot_result_name='picture/cnn.png',pic
 '''
 MTP=multi_Time_Predict(data_name='data/mutil.csv',seq_len=100,label_len=10,teach_forecast=False,n_features=2)
 [xtrain2,ytrain2,xtest2,ytest2]=MTP.load_data(forecast_num=0)
-MTP.rnn(x_train=xtrain2,y_train=ytrain2,model_save='model/mutil_rnn_forecast10_300_100to10.h5',ep=300)
-MTP.cnn(x_train=xtrain2,y_train=ytrain2,model_save='model/mutil_cnn_forecast10_300_100to10.h5',ep=300)
-MTP.lstm(x_train=xtrain2,y_train=ytrain2,model_save='model/mutil_lstm_forecast10_300_100to10.h5',ep=300)
+MTP.rnn(x_train=xtrain2,y_train=ytrain2,model_save='model/mutil_rnn_forecast10_300_100to10.h5',ep=3)
+MTP.cnn(x_train=xtrain2,y_train=ytrain2,model_save='model/mutil_cnn_forecast10_300_100to10.h5',ep=3)
+MTP.lstm(x_train=xtrain2,y_train=ytrain2,model_save='model/mutil_lstm_forecast10_300_100to10.h5',ep=3)
 
 mtp1=MTP.predict_result(model_save='model/mutil_rnn_forecast10_300_100to10.h5',x_test=xtest2)
 mtp2=MTP.predict_result(model_save='model/mutil_cnn_forecast10_300_100to10.h5',x_test=xtest2)
