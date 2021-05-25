@@ -209,7 +209,7 @@ TP.evalute(predicted_data=tp,y_test=ytest,plot_result_name='picture/cnn.png',pic
 代码运行实例 多变量
 '''
 MTP=multi_Time_Predict(data_name='data/mutil.csv',seq_len=100,label_len=10,teach_forecast=False,n_features=2)
-[xtrain2,ytrain2,xtest2,ytest2]=MTP.load_data(forecast_num=10)
+[xtrain2,ytrain2,xtest2,ytest2]=MTP.load_data(forecast_num=0)
 MTP.rnn(x_train=xtrain2,y_train=ytrain2,model_save='model/mutil_rnn_forecast10_300_100to10.h5',ep=300)
 MTP.cnn(x_train=xtrain2,y_train=ytrain2,model_save='model/mutil_cnn_forecast10_300_100to10.h5',ep=300)
 MTP.lstm(x_train=xtrain2,y_train=ytrain2,model_save='model/mutil_lstm_forecast10_300_100to10.h5',ep=300)

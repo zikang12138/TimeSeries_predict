@@ -67,6 +67,8 @@ picture_name：图片题目
 该类函数使用方法与Time_Predict相同  
 主要在evalute中 MTP.evalute(predicted_data=mtp,**y_test=np.reshape(ytest2,(ytest2.shape[0],ytest2.shape[1]))**,plot_result_name='picture/rnn.png',picture_name='rnn')
 注意加粗部分，对y_test做变形操作  
+#### load_data(forecast)
+forecast 论文（海洋平台。。。）中w的值
 ## 实例
 在main.py中，类定义后面已经加入如下的示意代码 
 ```
