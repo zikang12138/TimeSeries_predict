@@ -210,9 +210,19 @@ TP.evalute(predicted_data=tp1,y_test=ytest,plot_result_name='picture/rep_2_rnn.p
 '''
 代码运行实例 多变量
 '''
-# MTP=multi_Time_Predict(data_name='data/py_1.csv',seq_len=100,label_len=50,teach_forecast=False,n_features=2)
+# MTP=multi_Time_Predict(data_name='data/wave_and_rep_2.csv',seq_len=100,label_len=50,teach_forecast=False,n_features=2)
 # [xtrain2,ytrain2,xtest2,ytest2]=MTP.load_data(forecast_num=0)
-# # MTP.rnn(x_train=xtrain2,y_train=ytrain2,model_save='model/mutil_rnn_forecast10_300_100to10.h5',ep=3)
+# MTP.cnn(x_train=xtrain2,y_train=ytrain2,model_save='model/wave_and_rep_2_cnn.h5',ep=300)
+# MTP.rnn(x_train=xtrain2,y_train=ytrain2,model_save='model/wave_and_rep_2_rnn.h5',ep=300)
+
+# mtp1=MTP.predict_result(model_save='model/wave_and_rep_2_cnn.h5',x_test=xtest2)
+# mtp2=MTP.predict_result(model_save='model/wave_and_rep_2_rnn.h5',x_test=xtest2)
+
+# MTP.evalute(predicted_data=mtp1,y_test=np.reshape(ytest2,(ytest2.shape[0],ytest2.shape[1])),plot_result_name='picture/wave_and_rep_2_cnn.png',picture_name='wave_and_rep_2_lstm')
+# MTP.evalute(predicted_data=mtp2,y_test=np.reshape(ytest2,(ytest2.shape[0],ytest2.shape[1])),plot_result_name='picture/wave_and_rep_2_rnn.png',picture_name='wave_and_rep_2_rnn')
+
+
+
 # MTP.cnn(x_train=xtrain2,y_train=ytrain2,model_save='model/py1_cnn2.h5',ep=300)
 # # MTP.lstm(x_train=xtrain2,y_train=ytrain2,model_save='model/mutil_lstm_forecast10_300_100to10.h5',ep=3)
 
