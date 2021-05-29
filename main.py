@@ -53,9 +53,8 @@ class Time_Predict:
     def rnn(self,x_train, y_train, model_save,  ep):#model_save 模型文件保存名 ep循环次数
         model = Sequential()
         model.add(SimpleRNN(100, return_sequences=False, input_shape=(self.seq_len, self.n_features)))
-        model.add(Dense(50,activation='tanh'))
-        model.add(Dense(50,activation='tanh'))
-        model.add(Dense(50,activation='tanh'))
+        model.add(Dropout(0.2))
+        model.add(Dense(50))
         if self.teach_forecast:
             model.add(Dense(1))
         else:
@@ -70,8 +69,6 @@ class Time_Predict:
 
     def lstm(self,x_train, y_train, model_save, ep):
         model = Sequential()
-        model.add(LSTM(100, return_sequences=True, input_shape=(self.seq_len, self.n_features)))
-        model.add(Dropout(0.2))
         model.add(LSTM(100, return_sequences=False, input_shape=(self.seq_len, self.n_features)))
         model.add(Dropout(0.2))
         model.add(Dense(50))
@@ -91,7 +88,7 @@ class Time_Predict:
         model.add(Conv1D(filters=64, kernel_size=2, activation='tanh', input_shape=(self.seq_len, self.n_features)))
         model.add(MaxPool1D(pool_size=2))
         model.add(Flatten())
-        model.add(Dense(50, activation='tanh'))
+        model.add(Dense(50))
         if self.teach_forecast:
             model.add(Dense(1))
         else:
@@ -199,14 +196,19 @@ class multi_Time_Predict(Time_Predict):
 '''
 代码运行实例 单变量
 # '''
-MTP=multi_Time_Predict(data_name='data/wave_and_rep_3.csv',seq_len=100,label_len=50,teach_forecast=False,n_features=2)#定义一个time_predict类 
-[xtrain,ytrain,xtest,ytest]=MTP.load_data(forecast_num=0)#获取数据
-MTP.cnn(x_train=xtrain,y_train=ytrain,model_save='model/wave_and_rep_3_cnn.h5',ep=300)#cnn模型训练并生成训练文件 cnn.h5
-MTP.rnn(x_train=xtrain,y_train=ytrain,model_save='model/wave_and_rep_3_rnn.h5',ep=300)
-tp1=MTP.predict_result(model_save='model/wave_and_rep_3_cnn.h5',x_test=xtest)#读取模型文件并生成预测值
-tp2=MTP.predict_result(model_save='model/wave_and_rep_3_rnn.h5',x_test=xtest)#读取模型文件并生成预测值
-MTP.evalute(predicted_data=tp1,y_test=np.reshape(ytest,(ytest.shape[0],ytest.shape[1])),plot_result_name='picture/wave_and_rep_3_cnn.png',picture_name='wave_and_rep_3_lstm')#评估模型， 生成预测曲线和实际曲线，图名为cnn 文件名为cnn.png
-MTP.evalute(predicted_data=tp2,y_test=np.reshape(ytest,(ytest.shape[0],ytest.shape[1])),plot_result_name='picture/wave_and_rep_3_rnn.png',picture_name='wave_and_rep_3_rnn')
+dataname='DL6'
+MTP=Time_Predict(data_name='data/{}.csv'.format(dataname),seq_len=100,label_len=50,teach_forecast=False,n_features=1)#定义一个time_predict类 
+[xtrain,ytrain,xtest,ytest]=MTP.load_data()#获取数据
+
+MTP.cnn(x_train=xtrain,y_train=ytrain,model_save='model/{}_cnn.h5'.format(dataname),ep=300)#cnn模型训练并生成训练文件 cnn.h5
+MTP.rnn(x_train=xtrain,y_train=ytrain,model_save='model/{}_rnn.h5'.format(dataname),ep=300)
+MTP.lstm(x_train=xtrain,y_train=ytrain,model_save='model/{}_lstm.h5'.format(dataname),ep=300)
+tp1=MTP.predict_result(model_save='model/{}_cnn.h5'.format(dataname), x_test=xtest)#读取模型文件并生成预测值
+tp2=MTP.predict_result(model_save='model/{}_rnn.h5'.format(dataname),x_test=xtest)#读取模型文件并生成预测值
+tp3=MTP.predict_result(model_save='model/{}_lstm.h5'.format(dataname),x_test=xtest)
+MTP.evalute(predicted_data=tp1,y_test=np.reshape(ytest,(ytest.shape[0],ytest.shape[1])),plot_result_name='picture/{}_cnn.png'.format(dataname),picture_name='{}_cnn'.format(dataname))#评估模型， 生成预测曲线和实际曲线，图名为cnn 文件名为cnn.png
+MTP.evalute(predicted_data=tp2,y_test=np.reshape(ytest,(ytest.shape[0],ytest.shape[1])),plot_result_name='picture/{}_rnn.png'.format(dataname),picture_name='{}_rnn'.format(dataname))
+MTP.evalute(predicted_data=tp3,y_test=np.reshape(ytest,(ytest.shape[0],ytest.shape[1])),plot_result_name='picture/{}_lstm.png'.format(dataname),picture_name='{}_lstm'.format(dataname))
 '''
 代码运行实例 多变量
 '''
