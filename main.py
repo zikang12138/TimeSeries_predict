@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import time
 from tensorflow.keras.models import load_model
 import pandas as pd
-
+import csv
 
 class Time_Predict:
     '''
@@ -50,10 +50,8 @@ class Time_Predict:
         x_test = np.reshape(x_test, (x_test.shape[0], x_test.shape[1], 1))
         return [x_train, y_train, x_test, y_test]
 
-    def rnn(self,x_train, y_train, model_save,ep,non_linear_layer=True):#model_save 模型文件保存名 ep循环次数
+    def rnn(self,x_train, y_train, model_save,ep,non_linear_layer):#model_save 模型文件保存名 ep循环次数
         model = Sequential()
-        model.add(SimpleRNN(100, return_sequences=True, input_shape=(self.seq_len, self.n_features)))
-        model.add(Dropout(0.2))
         model.add(SimpleRNN(100, return_sequences=False, input_shape=(self.seq_len, self.n_features)))
         model.add(Dropout(0.2))
         if non_linear_layer:
@@ -72,10 +70,8 @@ class Time_Predict:
         model.save(model_save)
 
 
-    def lstm(self,x_train, y_train, model_save, ep,non_linear_layer=True):
+    def lstm(self,x_train, y_train, model_save, ep,non_linear_layer):
         model = Sequential()
-        model.add(LSTM(100, return_sequences=True, input_shape=(self.seq_len, self.n_features)))
-        model.add(Dropout(0.2))
         model.add(LSTM(100, return_sequences=False, input_shape=(self.seq_len, self.n_features)))
         model.add(Dropout(0.2))
         if non_linear_layer:
@@ -93,12 +89,15 @@ class Time_Predict:
         print('compilation time : ', time.time() - start)
         model.save(model_save)     
 
-    def cnn(self,x_train, y_train, model_save, ep):
+    def cnn(self,x_train, y_train, model_save, ep,non_linear_layer):
         model = Sequential()
         model.add(Conv1D(filters=64, kernel_size=2, activation='tanh', input_shape=(self.seq_len, self.n_features)))
         model.add(MaxPool1D(pool_size=2))
         model.add(Flatten())
-        model.add(Dense(50, activation='tanh'))
+        if non_linear_layer:
+            model.add(Dense(50,activation='tanh'))
+        else:
+            model.add(Dense(50))        
         if self.teach_forecast:
             model.add(Dense(1))
         else:
@@ -201,19 +200,57 @@ class multi_Time_Predict(Time_Predict):
         x_test , y_test = X[split:, :] , Y[split:, :]
         return x_train,y_train,x_test,y_test
     
-
+def write_csv(path, data_row):
+    with open(path,'a+') as f:
+        csv_write = csv.writer(f)
+        csv_write.writerow(data_row)
 
 '''
 代码运行实例 单变量
 '''
-TM=multi_Time_Predict('data/mutil.csv',100,10,n_features=2)
-[xtrain,ytrain,xtest,ytest]=TM.load_data(forecast_num=10)
+
+recoder_path  = "recoder.csv"
+dataname=''
+multi_or_not=False
+if multi_or_not:
+    TM=multi_Time_Predict('data/{}.csv'.format(dataname),100,10,n_features=2)
+    [xtrain,ytrain,xtest,ytest]=TM.load_data(forecast_num=0)
+else:
+    TM=Time_Predict('data/{}.csv'.format(dataname),100,10,n_features=1)
+    [xtrain,ytrain,xtest,ytest]=TM.load_data()
+
+def cnn_train():
+    Time=time.strftime("%Y%m%d%H%M%S",time.localtime(time.time()))
+    model_name='{}_{}.h5'.format(dataname,Time)
+    TM.cnn(xtrain,ytrain,'model/{}'.format(model_name),300,non_linear_layer=True)
+    tm=TM.predict_result('model/{}'.format(model_name),xtest)
+    ave=TM.AVE(y_true=np.reshape(ytest,(ytest.shape[0],ytest.shape[1])),y_predict=tm)
+    datarow=[model_name,ave,TM.n_features,TM.seq_len,TM.label_len,'cnn',300,'true','false',0]
+    write_csv(recoder_path, datarow)
+
+def rnn_train():
+    Time=time.strftime("%Y%m%d%H%M%S",time.localtime(time.time()))
+    model_name='{}_{}.h5'.format(dataname,Time)
+    TM.rnn(xtrain,ytrain,'model/{}'.format(model_name),300,non_linear_layer=True)
+    tm=TM.predict_result('model/{}'.format(model_name),xtest)
+    ave=TM.AVE(y_true=np.reshape(ytest,(ytest.shape[0],ytest.shape[1])),y_predict=tm)
+    datarow=[model_name,ave,TM.n_features,TM.seq_len,TM.label_len,'rnn',300,'true','false',0]
+    write_csv(recoder_path, datarow)
+
+def lstm_train():
+    Time=time.strftime("%Y%m%d%H%M%S",time.localtime(time.time()))
+    model_name='{}_{}.h5'.format(dataname,Time)
+    TM.lstm(xtrain,ytrain,'model/{}'.format(model_name),300,non_linear_layer=True)
+    tm=TM.predict_result('model/{}'.format(model_name),xtest)
+    ave_lstm=TM.AVE(y_true=np.reshape(ytest,(ytest.shape[0],ytest.shape[1])),y_predict=tm)
+    datarow=[model_name,ave_lstm,TM.n_features,TM.seq_len,TM.label_len,'lstm',300,'true','false',0]
+    write_csv(recoder_path, datarow)
+
 # TM.rnn(xtrain,ytrain,'model/mutil_7200_rnn_forecast_300_100to10.h5',300,non_linear_layer=False)
 # TM.lstm(xtrain,ytrain,'model/mutil_7200_lstm_forecast_300_100to10.h5',300,non_linear_layer=False)
-#TM.cnn(xtrain,ytrain,'model/mutil_7200_cnn_forecast_300_100to10.h5',300)
-tm1=TM.predict_result('model/mutil_7200_rnn_forecast_300_100to10.h5',xtest)
-tm2=TM.predict_result('model/mutil_7200_lstm_forecast_300_100to10.h5',xtest)
-tm3=TM.predict_result('model/mutil_7200_cnn_forecast_300_100to10.h5',xtest)
-print(TM.AVE(y_true=np.reshape(ytest,(ytest.shape[0],ytest.shape[1])),y_predict=tm1))
-print(TM.AVE(y_true=np.reshape(ytest,(ytest.shape[0],ytest.shape[1])),y_predict=tm2))
-print(TM.AVE(y_true=np.reshape(ytest,(ytest.shape[0],ytest.shape[1])),y_predict=tm3))
+
+# tmrnn=TM.predict_result('model/mutil_7200_lstm_forecast_300_100to10.h5',xtest)
+# tmlstm=TM.predict_result('model/mutil_7200_cnn_forecast_300_100to10.h5',xtest)
+# print(TM.AVE(y_true=np.reshape(ytest,(ytest.shape[0],ytest.shape[1])),y_predict=tm1))
+# print(TM.AVE(y_true=np.reshape(ytest,(ytest.shape[0],ytest.shape[1])),y_predict=tm2))
+# print(TM.AVE(y_true=np.reshape(ytest,(ytest.shape[0],ytest.shape[1])),y_predict=tm3))
